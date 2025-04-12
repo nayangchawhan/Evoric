@@ -1,13 +1,14 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { ref, get, set } from 'firebase/database';
 import { realtimeDB } from '../firebase';
 import { getAuth } from 'firebase/auth';
-// import { useNavigate } from 'react-router-dom';
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import { jsPDF } from 'jspdf';
 
 const ScanQRCode = () => {
   const { eventId } = useParams();
+  const [eventData, setEventData] = useState(null);
   const [scanData, setScanData] = useState(null);
   const [attendees, setAttendees] = useState([]);
   const auth = getAuth();
@@ -72,7 +73,6 @@ const ScanQRCode = () => {
   }, [attendees, scanData, eventId]);
 
   const handleDownloadAttendance = () => {
-    const { jsPDF } = require('jspdf');
     const doc = new jsPDF();
     let yPosition = 20;
 
