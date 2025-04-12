@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { ref, get, set } from 'firebase/database';
 import { realtimeDB } from '../firebase';
 import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { QrReader } from 'react-qr-reader';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const ScanQRCode = () => {
   const { eventId } = useParams();
   const [eventData, setEventData] = useState(null);
-  const [scanData, setScanData] = useState(null); // Store scan details
+  const [scanData, setScanData] = useState(null);
   const [attendees, setAttendees] = useState([]);
   const auth = getAuth();
   const currentUser = auth.currentUser;
   const navigate = useNavigate();
+  const qrCodeRegionId = 'qr-code-region';
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -31,38 +32,57 @@ const ScanQRCode = () => {
       }
     };
     fetchAttendees();
-    
   }, [eventId]);
 
-  const handleScan = (data) => {
-    if (data) {
-      setScanData(data); // Set scan data
-      const scanTime = new Date().toISOString();
+  useEffect(() => {
+    const scanner = new Html5QrcodeScanner(qrCodeRegionId, {
+      fps: 10,
+      qrbox: 250,
+    });
 
-      // Update attendance with scan time
-      const userId = data; // Assuming the QR code contains the user's UID
-      const updatedData = {
-        ...attendees.find(user => user.userId === userId),
-        scanTime: scanTime,
-      };
+    scanner.render(
+      async (decodedText) => {
+        if (!scanData) {
+          setScanData(decodedText);
 
-      set(ref(realtimeDB, `events/${eventId}/registrations/${userId}`), updatedData);
-    }
-  };
+          const scanTime = new Date().toISOString();
+          const userId = decodedText.trim(); // UID is scanned QR content
 
-  const handleError = (err) => {
-    console.error(err);
-  };
+          const attendee = attendees.find((user) => user.userId === userId);
+          if (attendee) {
+            const updatedData = {
+              ...attendee,
+              scanTime,
+            };
+
+            await set(ref(realtimeDB, `events/${eventId}/registrations/${userId}`), updatedData);
+            alert(`Attendance marked for ${attendee.userName}`);
+          } else {
+            alert('Scanned UID not found in registrations');
+          }
+        }
+      },
+      (errorMessage) => {
+        console.warn('QR Code Scan Error:', errorMessage);
+      }
+    );
+
+    return () => {
+      scanner.clear().catch((error) => {
+        console.error('Failed to clear QR scanner', error);
+      });
+    };
+  }, [attendees, scanData, eventId]);
 
   const handleDownloadAttendance = () => {
     const { jsPDF } = require('jspdf');
     const doc = new jsPDF();
     let yPosition = 20;
 
-    doc.text("Event Attendance Report", 10, yPosition);
+    doc.text('Event Attendance Report', 10, yPosition);
     yPosition += 10;
 
-    attendees.forEach(attendee => {
+    attendees.forEach((attendee) => {
       const line = `${attendee.userName} - ${attendee.scanTime || 'Not scanned'}`;
       doc.text(line, 10, yPosition);
       yPosition += 10;
@@ -74,13 +94,10 @@ const ScanQRCode = () => {
   return (
     <div>
       <h2>Scan QR Code for Attendance</h2>
-      <QrReader
-        delay={300}
-        style={{ width: '100%' }}
-        onScan={handleScan}
-        onError={handleError}
-      />
-      <button onClick={handleDownloadAttendance}>Download Attendance PDF</button>
+      <div id={qrCodeRegionId} style={{ width: '100%' }} />
+      <button onClick={handleDownloadAttendance} style={{ marginTop: '20px' }}>
+        Download Attendance PDF
+      </button>
     </div>
   );
 };
