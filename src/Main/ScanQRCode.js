@@ -30,31 +30,39 @@ const ScanQRCode = () => {
     });
 
     scanner.render(
-      async (decodedText) => {
-        if (!scanData) {
-          setScanData(decodedText);
-
-          const scanTime = new Date().toISOString();
-          const userId = decodedText.trim(); // UID is scanned QR content
-
-          const attendee = attendees.find((user) => user.userId === userId);
-          if (attendee) {
-            const updatedData = {
-              ...attendee,
-              scanTime,
-            };
-
-            await set(ref(realtimeDB, `events/${eventId}/registrations/${userId}`), updatedData);
-            alert(`Attendance marked for ${attendee.userName}`);
-          } else {
-            alert('Scanned UID not found in registrations');
+        (decodedText) => {
+          console.log("Scanned:", decodedText);
+          if (!scanData || scanData !== decodedText) {
+            setScanData(decodedText);
+            setTimeout(() => setScanData(null), 3000); // allow re-scan
+      
+            const scanTime = new Date().toISOString();
+            const userId = decodedText.trim();
+      
+            const attendee = attendees.find((user) => user.userId === userId);
+            if (attendee) {
+              const updatedData = {
+                ...attendee,
+                scanTime,
+              };
+      
+              set(ref(realtimeDB, `events/${eventId}/registrations/${userId}`), updatedData)
+                .then(() => {
+                  alert(`Attendance marked for ${attendee.userName}`);
+                })
+                .catch((err) => {
+                  console.error("Firebase update error:", err);
+                });
+            } else {
+              alert("Scanned UID not found in registrations");
+            }
           }
+        },
+        (errorMessage) => {
+          console.warn("QR Code Scan Error:", errorMessage);
         }
-      },
-      (errorMessage) => {
-        console.warn('QR Code Scan Error:', errorMessage);
-      }
-    );
+      );
+      
 
     return () => {
       scanner.clear().catch((error) => {
