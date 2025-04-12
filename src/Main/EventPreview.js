@@ -25,7 +25,7 @@ const EventPreview = () => {
         setCurrentUser(user);
         checkIfRegistered(user.uid);
       }
-    });
+    },[checkIfRegistered]);
 
     fetchEvent();
     return () => unsubscribe();
