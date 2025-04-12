@@ -30,32 +30,38 @@ const ScanQRCode = () => {
     });
 
     scanner.render(
-        (decodedText) => {
-          console.log("Scanned:", decodedText);
-          if (!scanData || scanData !== decodedText) {
-            setScanData(decodedText);
-            setTimeout(() => setScanData(null), 3000); // allow re-scan
+        async (decodedText) => {
+          console.log("Scanned text:", decodedText); // Add for debug
       
-            const scanTime = new Date().toISOString();
-            const userId = decodedText.trim();
+          try {
+            const parsed = JSON.parse(decodedText);
+            const userId = parsed.uid;
       
-            const attendee = attendees.find((user) => user.userId === userId);
-            if (attendee) {
-              const updatedData = {
-                ...attendee,
-                scanTime,
-              };
+            if (!scanData || scanData !== userId) {
+              setScanData(userId);
+              setTimeout(() => setScanData(null), 3000); // Optional: allow rescanning
       
-              set(ref(realtimeDB, `events/${eventId}/registrations/${userId}`), updatedData)
-                .then(() => {
-                  alert(`Attendance marked for ${attendee.userName}`);
-                })
-                .catch((err) => {
-                  console.error("Firebase update error:", err);
-                });
-            } else {
-              alert("Scanned UID not found in registrations");
+              const scanTime = new Date().toISOString();
+      
+              const attendee = attendees.find((user) => user.userId === userId);
+              if (attendee) {
+                const updatedData = {
+                  ...attendee,
+                  scanTime,
+                };
+      
+                await set(
+                  ref(realtimeDB, `events/${eventId}/registrations/${userId}`),
+                  updatedData
+                );
+                alert(`Attendance marked for ${attendee.userName}`);
+              } else {
+                alert("Scanned UID not found in registrations");
+              }
             }
+          } catch (err) {
+            console.error("Failed to parse QR code:", err);
+            alert("Invalid QR Code format");
           }
         },
         (errorMessage) => {
@@ -91,6 +97,7 @@ const ScanQRCode = () => {
     <div>
       <h2>Scan QR Code for Attendance</h2>
       <div id={qrCodeRegionId} style={{ width: '100%' }} />
+      {scanData && <p>Last scanned UID: {scanData}</p>}
       <button onClick={handleDownloadAttendance} style={{ marginTop: '20px' }}>
         Download Attendance PDF
       </button>
