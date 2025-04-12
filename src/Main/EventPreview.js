@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ref, get, push, child, update } from 'firebase/database';
+import { ref, get, update } from 'firebase/database';
 import { realtimeDB, auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { QRCodeCanvas } from 'qrcode.react';

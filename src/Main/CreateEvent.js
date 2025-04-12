@@ -3,7 +3,7 @@ import Nav_bar from '../Universe/Nav_bar';
 import './CreateEvent.css';
 import { realtimeDB, auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
-import { push, ref as dbRef, set } from 'firebase/database';
+import { push, ref as dbRef } from 'firebase/database';
 
 const CreateEvent = () => {
   const [formData, setFormData] = useState({

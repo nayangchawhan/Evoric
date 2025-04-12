@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { LuTickets } from "react-icons/lu";
 import { IoIosLogIn } from "react-icons/io";
 import './NavBar.css'
