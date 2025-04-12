@@ -99,7 +99,7 @@ const ScanQRCode = () => {
       <div id={qrCodeRegionId} style={{ width: '100%' }} />
       {scanData && <p>Last scanned UID: {scanData}</p>}
       <button onClick={handleDownloadAttendance} style={{ marginTop: '20px' }}>
-        Download Attendance PDF
+         Attendance PDF
       </button>
     </div>
   );
