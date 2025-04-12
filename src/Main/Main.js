@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ref as dbRef, get, child } from 'firebase/database';
 import { ref as storageRef, getDownloadURL } from 'firebase/storage';
 import { auth, realtimeDB, storage } from '../firebase';
-import NavBar from '../Universe/Nav_bar';
+import Navbar2 from '../Universe/Nav_bar';
 import './Main.css';
 
 const Main = () => {
@@ -89,7 +89,7 @@ const Main = () => {
 
   return (
     <div>
-      <NavBar />
+      <Navbar2 />
       <div className="main-container">
         <input
           type="text"

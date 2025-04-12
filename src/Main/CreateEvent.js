@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Nav_bar from '../Universe/Nav_bar';
+import Navbar2 from '../Universe/Nav_bar';
 import './CreateEvent.css';
 import { realtimeDB, auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
@@ -78,7 +78,7 @@ const CreateEvent = () => {
 
   return (
     <div>
-      <Nav_bar />
+      <Navbar2 />
       <div className="create-event-form">
         <h2>Create New Event</h2>
         <form onSubmit={handleSubmit}>

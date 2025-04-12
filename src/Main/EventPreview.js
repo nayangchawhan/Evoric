@@ -4,7 +4,7 @@ import { ref, get, update } from 'firebase/database';
 import { realtimeDB, auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { QRCodeCanvas } from 'qrcode.react';
-import Nav_bar from '../Universe/Nav_bar';
+import Navbar2 from '../Universe/Nav_bar';
 import './EventPreview.css';
 
 const EventPreview = () => {
@@ -97,7 +97,7 @@ const EventPreview = () => {
 
   return (
     <div>
-      <Nav_bar />
+      <Navbar2 />
       <div className="event-preview">
         <h2>{eventData.name}</h2>
         <p><strong>Type:</strong> {eventData.type}</p>

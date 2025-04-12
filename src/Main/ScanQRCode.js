@@ -1,19 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect} from 'react';
 import { useParams } from 'react-router-dom';
 import { ref, get, set } from 'firebase/database';
 import { realtimeDB } from '../firebase';
 import { getAuth } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const ScanQRCode = () => {
   const { eventId } = useParams();
-  const [eventData, setEventData] = useState(null);
   const [scanData, setScanData] = useState(null);
   const [attendees, setAttendees] = useState([]);
   const auth = getAuth();
-  const currentUser = auth.currentUser;
-  const navigate = useNavigate();
   const qrCodeRegionId = 'qr-code-region';
 
   useEffect(() => {

@@ -6,9 +6,9 @@ import { IoIosLogIn,IoIosMenu  } from "react-icons/io";
 import { IoCreateOutline } from "react-icons/io5";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // adjust path as needed
-import './Nav_bar.css'
+import './Navbar2.css'
 
-function NavBar() {
+function NavBar2() {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false); // menu toggle state
 
@@ -42,4 +42,4 @@ function NavBar() {
   )
 }
 
-export default NavBar;
+export default NavBar2;

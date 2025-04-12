@@ -1,6 +1,6 @@
 // src/components/Auth.jsx
 import React, { useState } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { auth } from "../firebase";
 import {
   createUserWithEmailAndPassword,
