@@ -31,6 +31,7 @@ const ScanQRCode = () => {
       }
     };
     fetchAttendees();
+    
   }, [eventId]);
 
   const handleScan = (data) => {
