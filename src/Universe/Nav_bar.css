@@ -1,0 +1,114 @@
+.Nav {
+    margin: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent;
+    /* flex-wrap: wrap; */
+}
+
+.Nav .logo {
+    font-size: 24px;
+    color: rgb(207, 207, 207);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.Nav .logo:hover {
+    cursor: pointer;
+    color: white;
+}
+
+.list {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+    margin-left: 20px;
+    flex-wrap: wrap;
+}
+
+.nav-list-left{display: flex;
+    gap: 15px;
+    flex-direction: row;
+    list-style: none;
+    font-family: 'Poppins', sans-serif;
+    margin-right: 0px;
+}
+
+.nav-list-right {
+    display: flex;
+    gap: 15px;
+    flex-direction: row;
+    list-style: none;
+    font-family: 'Poppins', sans-serif;
+    /* margin-left: -150px; */
+}
+
+.nav-list-left li,
+.nav-list-right li {
+    color: rgb(207, 207, 207);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.3s ease;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.nav-list-left li:hover,
+.nav-list-right li:hover {
+    color: white;
+}
+
+/* ✅ Responsive for mobile screens */
+@media screen and (max-width: 768px) {
+    .Nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .list {
+        flex-direction: column;
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .nav-list-left,
+    .nav-list-right {
+        flex-direction: column;
+        width: 100%;
+        padding: 0;
+    }
+
+    .nav-list-left li,
+    .nav-list-right li {
+        width: 100%;
+        padding: 12px 0;
+        font-size: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-list-left li:last-child,
+    .nav-list-right li:last-child {
+        border-bottom: none;
+    }
+}
+
+/* Hide list by default on mobile */
+@media screen and (max-width: 768px) {
+    .list {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      margin-left: 0;
+    }
+  
+    /* Show the menu only when toggled */
+    .list.show {
+      display: flex;
+    }
+  }
+  
