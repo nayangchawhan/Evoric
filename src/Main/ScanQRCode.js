@@ -8,21 +8,11 @@ import { jsPDF } from 'jspdf';
 
 const ScanQRCode = () => {
   const { eventId } = useParams();
-  const [eventData, setEventData] = useState(null);
   const [scanData, setScanData] = useState(null);
   const [attendees, setAttendees] = useState([]);
-  const auth = getAuth();
   const qrCodeRegionId = 'qr-code-region';
 
   useEffect(() => {
-    const fetchEvent = async () => {
-      const snapshot = await get(ref(realtimeDB, `events/${eventId}`));
-      if (snapshot.exists()) {
-        setEventData(snapshot.val());
-      }
-    };
-    fetchEvent();
-
     const fetchAttendees = async () => {
       const snapshot = await get(ref(realtimeDB, `events/${eventId}/registrations`));
       if (snapshot.exists()) {
@@ -31,6 +21,7 @@ const ScanQRCode = () => {
     };
     fetchAttendees();
   }, [eventId]);
+  
 
   useEffect(() => {
     const scanner = new Html5QrcodeScanner(qrCodeRegionId, {

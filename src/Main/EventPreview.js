@@ -104,7 +104,7 @@ const EventPreview = () => {
         <p><strong>Start Date:</strong> {eventData.startDate}</p>
         <p><strong>End Date:</strong> {eventData.endDate}</p>
         <p><strong>Max Seats:</strong> {eventData.maxSeats}</p>
-        <p><strong>Address:</strong> <a href={eventData.address} target="_blank">View on Google Maps</a></p>
+        <p><strong>Address:</strong> <a href={eventData.address} target="_blank" rel="noreferrer">View on Google Maps</a></p>
         <p><strong>Venue:</strong> {eventData.venue}</p>
         <p><strong>Description:</strong> {eventData.description}</p>
         <p><strong>Category:</strong> {eventData.category}</p>
