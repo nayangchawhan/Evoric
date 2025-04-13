@@ -1,22 +1,56 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
     color: #fff;
     margin: 0;
     padding: 0;
+    /* background: #000; */
   }
   
   .event-preview {
     max-width: 900px;
-    margin: 80px auto;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
+    min-height: 100vh;
+    margin-left: 15%;
     padding: 40px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    color: #000;
+    padding-bottom: 20px;
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
     transition: all 0.3s ease-in-out;
+  }
+
+  .event-preview-container{
+    min-height: 100vh;
+    transition: background 2s ease;
+    animation: gradientMove 20s infinite linear;
+    background-size: 400% 400%;
+  }
+
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .event-preview-container.theme-1 {
+    background-image: linear-gradient(270deg, #ff9a9e, #fad0c4, #fad0c4);
+  }
+  
+  .event-preview-container.theme-2 {
+    background-image: linear-gradient(270deg, #a18cd1, #fbc2eb, #a6c1ee);
+  }
+  
+  .event-preview-container.theme-3 {
+    background-image: linear-gradient(270deg, #43e97b, #38f9d7, #43e97b);
+  }
+  
+  .event-preview-container.theme-4 {
+    background-image: linear-gradient(270deg, #ffecd2, #fcb69f, #ffecd2);
+  }
+  
+  .event-preview-container.theme-5 {
+    background-image: linear-gradient(270deg, #667eea, #764ba2, #667eea);
   }
   
   .event-preview:hover {
@@ -26,25 +60,25 @@ body {
   .event-preview h2 {
     font-size: 2.8rem;
     margin-bottom: 20px;
-    color: #ffffff;
+    color: #000000;
     text-align: center;
-    font-family: 'poppins', sans-serif;
+    font-family: 'Poppins', sans-serif;
   }
   
   .event-preview p {
     font-size: 1.1rem;
     margin: 10px 0;
     line-height: 1.6;
-    font-family: 'poppins', sans-serif;
+    font-family: 'Poppins', sans-serif;
   }
   
   .event-preview strong {
-    color: #ffffff;
+    color: #000000;
   }
   
   .share-link {
     background-color: rgba(0, 0, 0, 0.4);
-    border-left: 5px solid #ffffff;
+    border-left: 5px solid #484848;
     padding: 20px;
     margin-top: 30px;
     border-radius: 10px;
@@ -54,8 +88,8 @@ body {
   .share-link p {
     font-size: 1rem;
     margin: 6px 0;
-    color: #e0e0e0;
-    font-family: 'poppins', sans-serif;
+    color: #000000;
+    font-family: 'Poppins', sans-serif;
   }
   
   @keyframes fadeIn {
@@ -63,8 +97,40 @@ body {
     to { opacity: 1; transform: translateY(0); }
   }
   
-  a{
+  a {
     text-decoration: none;
-    color: #ffa500;
+    color: #000000;
     font-weight: bold;
   }
+
+  .event-preview button{
+    background-color: #ffffff;
+    color: #000;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+
+  /* .event-preview button :hover{
+    background-color: #c4c4c4;
+  } */
+  
+@media(max-width: 768px) {
+    .event-preview {
+        padding: 20px;
+        margin-left: 5%;
+        margin-right: 5%;
+    }
+    .event-preview h2 {
+        font-size: 2.5rem;
+    }
+    .event-preview p {
+        font-size: 1rem;
+    }
+    .share-link p {
+        font-size: 0.9rem;
+    }
+}

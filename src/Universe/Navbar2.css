@@ -6,11 +6,12 @@
     align-items: center;
     background-color: transparent;
     /* flex-wrap: wrap; */
+    z-index: 100;
 }
 
 .Nav .logo {
     font-size: 24px;
-    color: rgb(207, 207, 207);
+    color: rgb(76, 76, 76);
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     flex-shrink: 0;
@@ -18,7 +19,7 @@
 
 .Nav .logo:hover {
     cursor: pointer;
-    color: white;
+    color: rgb(0, 0, 0);
 }
 
 .list {
@@ -49,18 +50,18 @@
 
 .nav-list-left li,
 .nav-list-right li {
-    color: rgb(207, 207, 207);
+    color: rgb(83, 83, 83);
     display: flex;
     align-items: center;
     gap: 6px;
     transition: 0.3s ease;
-    font-size: 12px;
+    font-size: 16px;
     cursor: pointer;
 }
 
 .nav-list-left li:hover,
 .nav-list-right li:hover {
-    color: white;
+    color: rgb(0, 0, 0);
 }
 
 /* ✅ Responsive for mobile screens */

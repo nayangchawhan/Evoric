@@ -5,6 +5,9 @@ import { realtimeDB, auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { QRCodeCanvas } from 'qrcode.react';
 import Navbar2 from '../Universe/Nav_bar';
+import { RiQrScanLine } from "react-icons/ri";
+import { IoCloudDownloadOutline } from "react-icons/io5";
+import { CiLocationOn } from "react-icons/ci";
 import './EventPreview.css';
 
 const EventPreview = () => {
@@ -13,11 +16,16 @@ const EventPreview = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [registered, setRegistered] = useState(false);
   const [userQRData, setUserQRData] = useState('');
+  const [availableSeats, setAvailableSeats] = useState(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
       const snapshot = await get(ref(realtimeDB, `events/${eventId}`));
-      if (snapshot.exists()) setEventData(snapshot.val());
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        setEventData(data);
+        calculateAvailableSeats(data.maxSeats);
+      }
     };
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -25,11 +33,17 @@ const EventPreview = () => {
         setCurrentUser(user);
         checkIfRegistered(user.uid);
       }
-    },[checkIfRegistered]);
+    });
 
     fetchEvent();
     return () => unsubscribe();
   }, [eventId]);
+
+  const calculateAvailableSeats = async (maxSeats) => {
+    const snapshot = await get(ref(realtimeDB, `eventRegistrations/${eventId}`));
+    const registrations = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+    setAvailableSeats(maxSeats - registrations);
+  };
 
   const checkIfRegistered = async (uid) => {
     const snapshot = await get(ref(realtimeDB, `eventRegistrations/${eventId}/${uid}`));
@@ -53,6 +67,7 @@ const EventPreview = () => {
     setRegistered(true);
     setUserQRData(JSON.stringify({ eventId, uid: user.uid }));
     alert("Successfully registered!");
+    calculateAvailableSeats(eventData.maxSeats);
   };
 
   const handleDownloadQR = () => {
@@ -67,7 +82,6 @@ const EventPreview = () => {
   };
 
   const handleScanQR = () => {
-    // Route to scanner page or display scanner directly
     window.location.href = `/scan-attendance/${eventId}`;
   };
 
@@ -96,35 +110,42 @@ const EventPreview = () => {
   const isOwner = currentUser && eventData.createdBy === currentUser.uid;
 
   return (
-    <div>
+    <div className={`event-preview-container ${eventData.theme}`}>
       <Navbar2 />
       <div className="event-preview">
-        <h2>{eventData.name}</h2>
-        <p><strong>Type:</strong> {eventData.type}</p>
+        <h2 style={{ fontFamily: "Just Another Hand", fontSize: "40px", letterSpacing: "2px" }}>{eventData.name}</h2>
+        <h4 style={{ textAlign: 'center' }}>{eventData.tagline}</h4>
+        <p>{eventData.type}</p>
+
         <p><strong>Start Date:</strong> {eventData.startDate}</p>
         <p><strong>End Date:</strong> {eventData.endDate}</p>
-        <p><strong>Max Seats:</strong> {eventData.maxSeats}</p>
-        <p><strong>Address:</strong> <a href={eventData.address} target="_blank" rel="noreferrer">View on Google Maps</a></p>
+
+        <p><strong>Start Time:</strong> {eventData.startTime}</p>
+        <p><strong>End Time:</strong> {eventData.endTime}</p>
+
+        <p><strong>Available Seats:</strong> {availableSeats !== null ? availableSeats : "Loading..."}</p>
+
+        <p><strong>Address:</strong> <a href={eventData.address} target="_blank" rel="noreferrer"><CiLocationOn /> View on Google Maps</a></p>
         <p><strong>Venue:</strong> {eventData.venue}</p>
-        <p><strong>Description:</strong> {eventData.description}</p>
+        <p><strong>About Event:</strong> {eventData.description}</p>
         <p><strong>Category:</strong> {eventData.category}</p>
-        <p><strong>Additional Info:</strong> {eventData.additionalInfo}</p>
+        <p><strong>Office/College Name:</strong> {eventData.additionalInfo}</p>
         <p><strong>Visibility:</strong> {eventData.visibility}</p>
 
         {isOwner ? (
           <>
-            <button onClick={handleScanQR}>📷 Scan QR for Attendance</button>
-            <button onClick={handleDownloadAttendance}>📥 Download Attendance</button>
+            <button onClick={handleScanQR}><RiQrScanLine /> Scan QR</button>
+            <button onClick={handleDownloadAttendance}><IoCloudDownloadOutline /> Attendance</button>
           </>
         ) : (
           !registered ? (
-            <button onClick={handleRegister}>🎟️ Register for Event</button>
+            <button onClick={handleRegister}>🎟️ Register to Join</button>
           ) : (
             <div>
               <p>You are already registered! Here's your ticket:</p>
               <QRCodeCanvas id="qrCanvas" value={userQRData} size={200} />
               <br />
-              <button onClick={handleDownloadQR}>⬇️ Download QR Ticket</button>
+              <button onClick={handleDownloadQR}><IoCloudDownloadOutline /> QR Ticket</button>
             </div>
           )
         )}

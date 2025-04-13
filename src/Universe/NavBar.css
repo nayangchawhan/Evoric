@@ -11,7 +11,7 @@
 
 .Nav .logo {
     font-size: 32px;
-    color: rgb(207, 207, 207);
+    color: rgb(121, 121, 121);
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     flex-shrink: 0;
@@ -19,7 +19,7 @@
 
 .Nav .logo:hover {
     cursor: pointer;
-    color: white;
+    color: rgb(28, 28, 28);
 }
 
 .list {
