@@ -303,7 +303,7 @@ const EventPreview = () => {
         </div>
         {isOwner ? (
           <>
-            <button onClick={handleScanQR}><RiQrScanLine /> Scan QR</button>
+            <button style={{marginBottom:'5px'}} onClick={handleScanQR}><RiQrScanLine /> Scan QR</button>
             <button onClick={handleDownloadAttendancePDF}><IoCloudDownloadOutline /> Attendance</button>
             <button onClick={handleDownloadPDF}><IoCloudDownloadOutline /> Registration PDF</button>
           </>
