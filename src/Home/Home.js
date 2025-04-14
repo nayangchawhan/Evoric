@@ -2,8 +2,10 @@ import React from 'react'
 import NavBar from '../Universe/NavBar'
 import eventImage from '../Assets/image.png';
 import './Home.css'
+import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
+  const Navigate = useNavigate()
   return (
     <div className='landing_page'>
       <NavBar />
@@ -16,7 +18,7 @@ const Home = () => {
           <h5 className='header-subtitle'>
             Set up an event page, invite friends and sell tickets. Host a memorable event today.
           </h5>
-          <button className='cta-button'>Create Your First Event</button>
+          <button className='cta-button' onClick={()=> Navigate('/login')}>Create Your First Event</button>
         </div>
         <img src={eventImage} alt="event illustration" className="landing-image" />
       </div>

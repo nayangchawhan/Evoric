@@ -116,22 +116,34 @@ const EventPreview = () => {
         <h2 style={{ fontFamily: "Just Another Hand", fontSize: "40px", letterSpacing: "2px" }}>{eventData.name}</h2>
         <h4 style={{ textAlign: 'center' }}>{eventData.tagline}</h4>
         <p>{eventData.type}</p>
-
-        <p><strong>Start Date:</strong> {eventData.startDate}</p>
-        <p><strong>End Date:</strong> {eventData.endDate}</p>
-
-        <p><strong>Start Time:</strong> {eventData.startTime}</p>
-        <p><strong>End Time:</strong> {eventData.endTime}</p>
-
-        <p><strong>Available Seats:</strong> {availableSeats !== null ? availableSeats : "Loading..."}</p>
-
-        <p><strong>Address:</strong> <a href={eventData.address} target="_blank" rel="noreferrer"><CiLocationOn /> View on Google Maps</a></p>
-        <p><strong>Venue:</strong> {eventData.venue}</p>
-        <p><strong>About Event:</strong> {eventData.description}</p>
-        <p><strong>Category:</strong> {eventData.category}</p>
-        <p><strong>Office/College Name:</strong> {eventData.additionalInfo}</p>
-        <p><strong>Visibility:</strong> {eventData.visibility}</p>
-
+        <div className='event-grid'>
+            <div className='event-preview-left'>
+                <strong>Start date</strong>
+                <p>{eventData.startDate}</p>
+                <strong>End Date</strong>
+                <p>{eventData.endDate}</p>
+                <strong>Start Time</strong>
+                <p>{eventData.startTime}</p>
+                <strong>End Time</strong>
+                <p> {eventData.endTime}</p>
+                <strong>Available Seats</strong> 
+                <p>{availableSeats !== null ? availableSeats : "Loading..."}</p>
+                <strong>Venue</strong> 
+                <p>{eventData.venue}</p>
+            </div>
+            <div className='event-preview-right'>
+                <strong>Location</strong> 
+                <p><a href={eventData.address} target="_blank" rel="noreferrer"><CiLocationOn /> View on Google Maps</a></p>
+                <strong>About Event</strong>
+                <p> {eventData.description}</p>
+                <strong>Category</strong> 
+                <p>{eventData.category}</p>
+                <strong>Office/College Name</strong>
+                <p> {eventData.additionalInfo}</p>
+                <strong>Visibility</strong>
+                <p> {eventData.visibility}</p>
+            </div>
+        </div>
         {isOwner ? (
           <>
             <button onClick={handleScanQR}><RiQrScanLine /> Scan QR</button>

@@ -70,10 +70,12 @@ body {
     margin: 10px 0;
     line-height: 1.6;
     font-family: 'Poppins', sans-serif;
+    margin-left: 7px;
   }
   
   .event-preview strong {
     color: #000000;
+    font-family: 'Poppins', sans-serif;
   }
   
   .share-link {
@@ -100,7 +102,6 @@ body {
   a {
     text-decoration: none;
     color: #000000;
-    font-weight: bold;
   }
 
   .event-preview button{
@@ -112,12 +113,27 @@ body {
     border: none;
     margin-right: 10px;
     cursor: pointer;
+    font-family: 'poppins', sans-serif;
   }
 
   /* .event-preview button :hover{
     background-color: #c4c4c4;
   } */
+
+  .event-grid{
+    display: grid;
+  }
+
+  .event-grid .event-preview-left{
+    grid-column-start: 1;
+    grid-column-end: 2;
+  }
   
+  .event-grid .event-preview-right{
+    grid-column-start:2;
+    grid-column-end: 3;
+  }
+
 @media(max-width: 768px) {
     .event-preview {
         padding: 20px;

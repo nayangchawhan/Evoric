@@ -11,10 +11,10 @@ function NavBar() {
     <div className='Nav'>
       <h1 className='logo'>Oravi</h1>
       <div className='list'>
-      <ul className='nav-list-left'>
+      <ul className='nav-list-left1'>
         <li><LuTickets /> Events</li>
       </ul>
-      <ul className='nav-list-right'>
+      <ul className='nav-list-right1'>
         <li onClick={() => navigate('/login')}><IoIosLogIn /> Login</li>
       </ul>
       </div>

@@ -6,7 +6,7 @@ import { IoIosLogIn,IoIosMenu  } from "react-icons/io";
 import { IoCreateOutline } from "react-icons/io5";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // adjust path as needed
-import './Navbar2.css'
+import './Navbar2.css';
 
 function NavBar2() {
   const navigate = useNavigate();
@@ -25,17 +25,17 @@ function NavBar2() {
     <div className='Nav'>
       <h1 className='logo'>Oravi</h1>
       <div className="menu-icon" onClick={() => setShowMenu(!showMenu)}>
-        <IoIosMenu size={28} color="white" />
+        <IoIosMenu size={28} color="black" />
       </div>
       <div className={`list ${showMenu ? 'show' : ''}`}>
         <ul className='nav-list-left'>
-          <li><LuTickets /> Events</li>
+          <li onClick={() => navigate('/main')}><LuTickets /> Events</li>
           <li onClick={() => navigate('/create-event')}><IoCreateOutline /> Create Event</li>
           <li><SlCalender /> Calender</li>
         </ul>
         <ul className='nav-list-right'>
           <li onClick={handleLogout}><IoIosLogIn /> Log out</li>
-          <li>Profile</li>
+          <li onClick={() => navigate('/profile')}>Profile</li>
         </ul>
       </div>
     </div>

@@ -57,6 +57,9 @@ const CreateEvent = () => {
     };
 
     const eventRef = await push(dbRef(realtimeDB, 'events'), newEvent);
+    const eventId = eventRef.key;
+    // Save reference in user's createdEvents
+    await push(dbRef(realtimeDB, `users/${currentUser.uid}/createdEvents`), eventId);
     navigate(`/event/${eventRef.key}`);
     alert('Event created successfully!');
 
@@ -98,7 +101,7 @@ const CreateEvent = () => {
 
         <form onSubmit={handleSubmit}>
           <input name="name" placeholder="Event Name" value={formData.name} onChange={handleChange} style={{border:'none', fontSize:'24px'}}required />
-          <input name="type" placeholder="Tag Line" value={formData.tagline} onChange={handleChange} required />
+          <input name="tagline" placeholder="Tag Line" value={formData.tagline} onChange={handleChange} required />
           <input name="type" placeholder="Event Type" value={formData.type} onChange={handleChange} required />
 
           <label htmlFor="start-date" className="date-label" style={{color:'#444'}}>Start Date</label>

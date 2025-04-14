@@ -11,7 +11,7 @@
 
 .Nav .logo {
     font-size: 32px;
-    color: rgb(121, 121, 121);
+    color: rgb(207, 207, 207);
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     flex-shrink: 0;
@@ -19,7 +19,7 @@
 
 .Nav .logo:hover {
     cursor: pointer;
-    color: rgb(28, 28, 28);
+    color: white;
 }
 
 .list {
@@ -31,8 +31,8 @@
     flex-wrap: wrap;
 }
 
-.nav-list-left,
-.nav-list-right {
+.nav-list-left1,
+.nav-list-right1 {
     display: flex;
     gap: 15px;
     flex-direction: row;
@@ -40,8 +40,8 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.nav-list-left li,
-.nav-list-right li {
+.nav-list-left1 li,
+.nav-list-right1 li {
     color: rgb(207, 207, 207);
     display: flex;
     align-items: center;
@@ -51,8 +51,8 @@
     cursor: pointer;
 }
 
-.nav-list-left li:hover,
-.nav-list-right li:hover {
+.nav-list-left1 li:hover,
+.nav-list-right1 li:hover {
     color: white;
 }
 
