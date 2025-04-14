@@ -138,24 +138,37 @@ const EventPreview = () => {
     window.location.href = `/scan-attendance/${eventId}`;
   };
 
-  const handleDownloadAttendance = async () => {
+  const handleDownloadAttendancePDF = async () => {
     const snapshot = await get(ref(realtimeDB, `eventAttendance/${eventId}`));
-    if (!snapshot.exists()) return alert("No attendance data yet!");
-
+    if (!snapshot.exists()) return alert("No attendance data found!");
+  
     const data = snapshot.val();
-    const rows = [['Name', 'Email', 'Scan Time']];
-
-    for (const [uid, entry] of Object.entries(data)) {
-      rows.push([entry.name, entry.email, entry.time]);
-    }
-
-    const csvContent = rows.map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `Attendance_${eventId}.csv`;
-    link.click();
+    const doc = new jsPDF('landscape');
+    doc.setFontSize(16);
+    doc.text("Event Attendance List", 20, 20);
+    doc.setFontSize(12);
+  
+    let y = 30;
+    doc.text("Name", 20, y);
+    doc.text("Email", 100, y);
+    doc.text("Scan Time", 240, y);
+    y += 10;
+  
+    Object.values(data).forEach((entry) => {
+      doc.text(entry.name || 'N/A', 20, y);
+      doc.text(entry.email || 'N/A', 100, y);
+      doc.text(entry.time || 'N/A', 240, y);
+      y += 10;
+  
+      if (y > 190) {
+        doc.addPage();
+        y = 20;
+      }
+    });
+  
+    doc.save(`Attendance_${eventId}.pdf`);
   };
+  
 
   const handleDownloadPDF = async () => {
     const snapshot = await get(ref(realtimeDB, `eventRegistrations/${eventId}`));
@@ -291,7 +304,7 @@ const EventPreview = () => {
         {isOwner ? (
           <>
             <button onClick={handleScanQR}><RiQrScanLine /> Scan QR</button>
-            <button onClick={handleDownloadAttendance}><IoCloudDownloadOutline /> Attendance</button>
+            <button onClick={handleDownloadAttendancePDF}><IoCloudDownloadOutline /> Attendance</button>
             <button onClick={handleDownloadPDF}><IoCloudDownloadOutline /> Registration PDF</button>
           </>
         ) : (

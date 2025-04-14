@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import { ref, get, set } from 'firebase/database';
 import { realtimeDB } from '../firebase';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import { jsPDF } from 'jspdf';
 
 const ScanQRCode = () => {
   const { eventId } = useParams();
@@ -84,28 +83,10 @@ const ScanQRCode = () => {
     };
   }, [attendees, eventId]);
 
-  const handleDownloadAttendance = () => {
-    const doc = new jsPDF();
-    let yPosition = 20;
-    doc.text('Event Attendance Report', 10, yPosition);
-    yPosition += 10;
-
-    attendees.forEach((attendee) => {
-      const line = `${attendee.userName || attendee.userId} - ${attendee.scanTime || 'Not scanned'}`;
-      doc.text(line, 10, yPosition);
-      yPosition += 10;
-    });
-
-    doc.save('attendance.pdf');
-  };
-
   return (
     <div>
-      <h2>📷 Scan QR Code for Attendance</h2>
+      <h2>Scan QR Ticket</h2>
       <div id={qrCodeRegionId} style={{ width: '100%' }} />
-      <button onClick={handleDownloadAttendance} style={{ marginTop: '20px' }}>
-        📄 Download Attendance PDF
-      </button>
     </div>
   );
 };
