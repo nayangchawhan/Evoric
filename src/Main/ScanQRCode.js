@@ -51,7 +51,10 @@ const ScanQRCode = () => {
           scannedUIDs.current.add(userId);
           setTimeout(() => scannedUIDs.current.delete(userId), 5000);
 
-          const scanTime = new Date().toISOString();
+          const pad = (n) => n.toString().padStart(2, '0');
+            const now = new Date();
+            const scanTime = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
           const attendee = attendees.find((user) => user.userId === userId);
 
           if (attendee) {
