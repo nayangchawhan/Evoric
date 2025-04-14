@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ref, get, set } from 'firebase/database';
 import { realtimeDB } from '../firebase';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import './ScanQRCode.css';
+import './ScanQRCode.css'; // Add styles here
 
 const ScanQRCode = () => {
   const { eventId } = useParams();
@@ -21,8 +21,6 @@ const ScanQRCode = () => {
           ...details,
         }));
         setAttendees(attendeeList);
-      } else {
-        console.warn("No registrations found for event:", eventId);
       }
     };
 
@@ -31,8 +29,8 @@ const ScanQRCode = () => {
 
   useEffect(() => {
     const scanner = new Html5QrcodeScanner(qrCodeRegionId, {
-      fps: 30, // high fps for quicker detection
-      qrbox: { width: 200, height: 200 }, // smaller box speeds detection
+      fps: 30,
+      qrbox: { width: 200, height: 200 },
       rememberLastUsedCamera: true,
       aspectRatio: 1.0,
     });
@@ -40,7 +38,6 @@ const ScanQRCode = () => {
     scanner.render(
       async (decodedText) => {
         try {
-          console.log("Scanned:", decodedText);
           const parsed = JSON.parse(decodedText);
           const userId = parsed.uid?.trim();
           const scannedEventId = parsed.eventId;
@@ -50,44 +47,48 @@ const ScanQRCode = () => {
             return;
           }
 
-          // Prevent rapid duplicate scans
           if (scannedUIDs.current.has(userId)) return;
           scannedUIDs.current.add(userId);
-          setTimeout(() => scannedUIDs.current.delete(userId), 5000); // reset after 5 sec
+          setTimeout(() => scannedUIDs.current.delete(userId), 5000);
 
           const scanTime = new Date().toISOString();
           const attendee = attendees.find((user) => user.userId === userId);
 
           if (attendee) {
-            const updatedData = {
-              ...attendee,
-              scanTime,
-            };
-            await set(ref(realtimeDB, `eventRegistrations/${eventId}/${userId}`), updatedData);
-            alert(`✅ Attendance marked for ${attendee.userName || userId}`);
+            await set(ref(realtimeDB, `eventAttendance/${eventId}/${userId}`), {
+              uid: userId,
+              name: attendee.name || '',
+              email: attendee.email || '',
+              time: scanTime,
+            });
+
+            alert(`✅ Attendance marked for ${attendee.name || userId}`);
           } else {
             alert('❌ UID not found in registrations');
           }
         } catch (error) {
-          console.error("Failed to parse scanned QR code:", error);
+          console.error("QR code scan error:", error);
         }
       },
       (error) => {
-        console.warn("QR Scan Error:", error);
+        console.warn("QR scanning error:", error);
       }
     );
 
     return () => {
       scanner.clear().catch((error) => {
-        console.error('Failed to clear QR scanner', error);
+        console.error('Failed to clear scanner:', error);
       });
     };
   }, [attendees, eventId]);
 
   return (
-    <div>
-      <h2>Scan QR Ticket</h2>
-      <div id={qrCodeRegionId} style={{ width: '100%' }} />
+    <div className="scanner-wrapper">
+      <div className="scanner-card">
+        <h2>📷 Scan QR Ticket</h2>
+        <div id={qrCodeRegionId} style={{ width: '100%' }} />
+        <p className="note">Please scan one ticket at a time.</p>
+      </div>
     </div>
   );
 };
