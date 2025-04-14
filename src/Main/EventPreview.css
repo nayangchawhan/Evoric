@@ -151,3 +151,21 @@ body {
         font-size: 0.9rem;
     }
 }
+
+.custom-registration-form {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  border-radius: 8px;
+}
+.custom-registration-form label {
+  font-weight: bold;
+  display: block;
+  margin-top: 10px;
+}
+.custom-registration-form input {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 10px;
+}

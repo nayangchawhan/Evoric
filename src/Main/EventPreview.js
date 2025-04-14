@@ -18,6 +18,9 @@ const EventPreview = () => {
   const [registered, setRegistered] = useState(false);
   const [userQRData, setUserQRData] = useState('');
   const [availableSeats, setAvailableSeats] = useState(null);
+  const [teamId, setTeamId] = useState('');
+    const [customAnswers, setCustomAnswers] = useState({});
+    const [showRegistrationForm, setShowRegistrationForm] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -58,14 +61,12 @@ const EventPreview = () => {
     const user = auth.currentUser;
     if (!user) return alert("You need to be logged in to register.");
   
-    // Check for seat availability
     if (availableSeats <= 0) {
       return alert("Sorry, no more seats available!");
     }
   
     const now = new Date();
   
-    // Check registration deadline
     if (eventData.registrationDeadlineDate && eventData.registrationDeadlineTime) {
       const regDeadline = new Date(`${eventData.registrationDeadlineDate}T${eventData.registrationDeadlineTime}`);
       if (now >= regDeadline) {
@@ -73,7 +74,6 @@ const EventPreview = () => {
       }
     }
   
-    // Check if event has already started
     if (eventData.startDate && eventData.startTime) {
       const eventStart = new Date(`${eventData.startDate}T${eventData.startTime}`);
       if (now >= eventStart) {
@@ -81,7 +81,6 @@ const EventPreview = () => {
       }
     }
   
-    // Check if user profile exists
     const userProfileSnapshot = await get(ref(realtimeDB, `users/${user.uid}`));
     if (!userProfileSnapshot.exists()) {
       return alert("Please complete your profile before registering.");
@@ -95,19 +94,60 @@ const EventPreview = () => {
       return alert("Please complete your profile (name and phone) before registering.");
     }
   
-    // Save registration
+    // Show form for Team ID and Custom Questions if needed
+    if (
+      eventData.requiresTeamId ||
+      (eventData.additionalQuestions && eventData.additionalQuestions.length > 0)
+    ) {
+      setShowRegistrationForm(true);
+    } else {
+      // Direct registration if no extra fields needed
+      const registrationRef = ref(realtimeDB, `eventRegistrations/${eventId}/${user.uid}`);
+      await update(registrationRef, {
+        uid: user.uid,
+        email: user.email,
+        registeredAt: new Date().toISOString()
+      });
+  
+      setRegistered(true);
+      setUserQRData(JSON.stringify({ eventId, uid: user.uid }));
+      alert("Successfully registered!");
+      calculateAvailableSeats(eventData.maxSeats);
+    }
+  };
+
+  const handleFinalRegistration = async () => {
+    const user = auth.currentUser;
+    if (!user) return alert("User not found.");
+  
+    if (eventData.requiresTeamId && !teamId.trim()) {
+      return alert("Please enter a valid Team ID.");
+    }
+  
+    // Check if team exists
+    if (eventData.requiresTeamId) {
+      const teamSnapshot = await get(ref(realtimeDB, `teams/${teamId}`));
+      if (!teamSnapshot.exists()) {
+        return alert("Team ID does not exist.");
+      }
+    }
+  
     const registrationRef = ref(realtimeDB, `eventRegistrations/${eventId}/${user.uid}`);
     await update(registrationRef, {
       uid: user.uid,
       email: user.email,
-      registeredAt: new Date().toISOString()
+      registeredAt: new Date().toISOString(),
+      teamId: eventData.requiresTeamId ? teamId.trim() : null,
+      customAnswers: customAnswers || {}
     });
   
     setRegistered(true);
     setUserQRData(JSON.stringify({ eventId, uid: user.uid }));
     alert("Successfully registered!");
     calculateAvailableSeats(eventData.maxSeats);
+    setShowRegistrationForm(false);
   };
+  
   
   const handleDownloadQR = () => {
     const canvas = document.getElementById("qrCanvas");
@@ -230,6 +270,36 @@ const EventPreview = () => {
                 <p>{availableSeats !== null ? availableSeats : "Loading..."}</p>
                 <strong>Venue</strong> 
                 <p>{eventData.venue}</p>
+
+                {showRegistrationForm && (
+                    <div className="custom-registration-form">
+                        {eventData.requiresTeamId && (
+                        <>
+                            <label>Enter Team ID:</label>
+                            <input
+                            type="text"
+                            value={teamId}
+                            onChange={(e) => setTeamId(e.target.value)}
+                            />
+                        </>
+                        )}
+
+                        {eventData.additionalQuestions && eventData.additionalQuestions.length > 0 &&
+                        eventData.additionalQuestions.map((q, idx) => (
+                            <div key={idx}>
+                            <label>{q}</label>
+                            <input
+                                type="text"
+                                value={customAnswers[q] || ''}
+                                onChange={(e) =>
+                                setCustomAnswers((prev) => ({ ...prev, [q]: e.target.value }))
+                                }
+                            />
+                            </div>
+                        ))
+                        }
+                        </div>
+                    )}
             </div>
             <div className='event-preview-right'>
                 <strong>Location</strong> 
@@ -253,7 +323,7 @@ const EventPreview = () => {
         ) : (
             !registered ? (
                 availableSeats > 0 ? (
-                  <button onClick={handleRegister}>🎟️ Register to Join</button>
+                  <button onClick={handleFinalRegistration}>🎟️ Register to Join</button>
                 ) : (
                   <p style={{ color: 'red', fontWeight: 'bold' }}>Registration Closed</p>
                 )

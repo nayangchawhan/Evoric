@@ -7,21 +7,28 @@ import { useNavigate } from 'react-router-dom';
 import { push, ref as dbRef } from 'firebase/database';
 
 const CreateEvent = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    type: '',
-    startDate: '',
-    endDate: '',
-    maxSeats: '',
-    registrationDeadlineDate: '',
-    registrationDeadlineTime: '',
-    address: '',
-    venue: '',
-    description: '',
-    category: '',
-    additionalInfo: '',
-    visibility: 'public',
-  });
+    const [formData, setFormData] = useState({
+        name: '',
+        tagline: '',
+        type: '',
+        startDate: '',
+        endDate: '',
+        startTime: '',
+        endTime: '',
+        registrationDeadlineDate: '',
+        registrationDeadlineTime: '',
+        maxSeats: '',
+        address: '',
+        venue: '',
+        description: '',
+        category: '',
+        theme:'',
+        additionalInfo: '',
+        visibility: 'public',
+        isTeamEvent: false, 
+        customQuestions: [], 
+      });
+      
 
   const [theme, setTheme] = useState('theme-1');
   const [currentUser, setCurrentUser] = useState(null);
@@ -66,23 +73,25 @@ const CreateEvent = () => {
     alert('Event created successfully!');
 
     setFormData({
-      name: '',
-      tagline: '',
-      type: '',
-      startDate: '',
-      endDate: '',
-      startTime: '',
-      endTime: '',
-      registrationDeadlineDate: '',
-      registrationDeadlineTime: '',
-      maxSeats: '',
-      address: '',
-      venue: '',
-      description: '',
-      category: '',
-      additionalInfo: '',
-      visibility: 'public',
-      theme:'',
+        name: '',
+        tagline: '',
+        type: '',
+        startDate: '',
+        endDate: '',
+        startTime: '',
+        endTime: '',
+        registrationDeadlineDate: '',
+        registrationDeadlineTime: '',
+        maxSeats: '',
+        address: '',
+        venue: '',
+        description: '',
+        category: '',
+        theme:'',
+        additionalInfo: '',
+        visibility: 'public',
+        isTeamEvent: false, // ✅ New Field
+        customQuestions: [], // ✅ New Field
     });
   };
 
@@ -113,9 +122,9 @@ const CreateEvent = () => {
           <label htmlFor="end-date" className="date-label" style={{color:'#444'}}>End Date</label>
           <input type="date" id="end-date" className="date-input" name="endDate" value={formData.endDate} onChange={handleChange} required />
 
-          <label htmlFor="start-time" className="date-label" style={{color:'#444'}}>Start Date</label>
+          <label htmlFor="start-time" className="date-label" style={{color:'#444'}}>Start Time</label>
           <input type="time" id="start-time" className="time-input" name="startTime" value={formData.startTime} onChange={handleChange} required />
-          <label htmlFor="end-date" className="date-label" style={{color:'#444'}}>End Date</label>
+          <label htmlFor="end-date" className="date-label" style={{color:'#444'}}>End Time</label>
           <input type="time" id="end-time" className="time-input" name="endTime" value={formData.endTime} onChange={handleChange} required />
           <label htmlFor="reg-deadline-date" className="date-label" style={{ color: '#444' }}>Registration Deadline Date</label>
         <input
@@ -168,6 +177,44 @@ const CreateEvent = () => {
               <option value="private">Private (Only with link)</option>
             </select>
           </div>
+
+          {/* Team Event Checkbox */}
+            <div style={{ marginTop: '10px' }}>
+            <label>
+                 Is this a Team Event?
+            </label>
+            <input
+                type="checkbox"
+                name="isTeamEvent"
+                checked={formData.isTeamEvent}
+                onChange={(e) =>
+                    setFormData((prev) => ({
+                    ...prev,
+                    isTeamEvent: e.target.checked,
+                    }))
+                }
+                />
+            </div>
+
+            {/* Custom Questions Field */}
+            <div style={{ marginTop: '15px' }}>
+            <label htmlFor="customQuestions" style={{ display: 'block', marginBottom: '5px' }}>
+                Do you want to ask anything from participants while registering?
+            </label>
+            <textarea
+                placeholder="Add each question in a new line (e.g. Topic Name?, Team Members?)"
+                value={formData.customQuestions.join('\n')}
+                onChange={(e) =>
+                setFormData((prev) => ({
+                    ...prev,
+                    customQuestions: e.target.value.split('\n').filter(q => q.trim() !== ''),
+                }))
+                }
+                rows={4}
+                style={{ width: '100%' }}
+            />
+            </div>
+
 
           <button type="submit">Create Event</button>
         </form>
