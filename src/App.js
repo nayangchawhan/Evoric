@@ -7,6 +7,7 @@ import CreateEvent from './Main/CreateEvent'
 import EventPreview from './Main/EventPreview'
 import ScanQRCode from './Main/ScanQRCode'
 import Profile from './Main/Profile'
+import EditProfile from './Main/EditProfile'
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/scan-attendance/:eventId" element={<ScanQRCode />} />
         <Route path="/event/:id" element={<EventPreview />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/edit-profile" element={<EditProfile />} />
       </Routes>
     </Router>
   )

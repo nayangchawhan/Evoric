@@ -13,6 +13,8 @@ const CreateEvent = () => {
     startDate: '',
     endDate: '',
     maxSeats: '',
+    registrationDeadlineDate: '',
+    registrationDeadlineTime: '',
     address: '',
     venue: '',
     description: '',
@@ -71,6 +73,8 @@ const CreateEvent = () => {
       endDate: '',
       startTime: '',
       endTime: '',
+      registrationDeadlineDate: '',
+      registrationDeadlineTime: '',
       maxSeats: '',
       address: '',
       venue: '',
@@ -113,6 +117,27 @@ const CreateEvent = () => {
           <input type="time" id="start-time" className="time-input" name="startTime" value={formData.startTime} onChange={handleChange} required />
           <label htmlFor="end-date" className="date-label" style={{color:'#444'}}>End Date</label>
           <input type="time" id="end-time" className="time-input" name="endTime" value={formData.endTime} onChange={handleChange} required />
+          <label htmlFor="reg-deadline-date" className="date-label" style={{ color: '#444' }}>Registration Deadline Date</label>
+        <input
+        type="date"
+        id="reg-deadline-date"
+        className="date-input"
+        name="registrationDeadlineDate"
+        value={formData.registrationDeadlineDate}
+        onChange={handleChange}
+        required
+        />
+
+        <label htmlFor="reg-deadline-time" className="date-label" style={{ color: '#444' }}>Registration Deadline Time</label>
+        <input
+        type="time"
+        id="reg-deadline-time"
+        className="time-input"
+        name="registrationDeadlineTime"
+        value={formData.registrationDeadlineTime}
+        onChange={handleChange}
+        required
+        />
 
           <input name="maxSeats" placeholder="Maximum Seats" type="number" value={formData.maxSeats} onChange={handleChange} required />
           <input name="address" placeholder="Paste Google Maps Link" value={formData.address} onChange={handleChange} required />
@@ -123,7 +148,7 @@ const CreateEvent = () => {
             <option value="">Select Category</option>
             <option value="college">College</option>
             <option value="office">Office</option>
-            <option value="community">Community</option>
+            <option value="public">Public</option>
           </select>
 
           {formData.category === 'college' && (

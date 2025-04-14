@@ -8,6 +8,7 @@ import Navbar2 from '../Universe/Nav_bar';
 import { RiQrScanLine } from "react-icons/ri";
 import { IoCloudDownloadOutline } from "react-icons/io5";
 import { CiLocationOn } from "react-icons/ci";
+import { jsPDF } from 'jspdf';
 import './EventPreview.css';
 
 const EventPreview = () => {
@@ -56,20 +57,58 @@ const EventPreview = () => {
   const handleRegister = async () => {
     const user = auth.currentUser;
     if (!user) return alert("You need to be logged in to register.");
-
+  
+    // Check for seat availability
+    if (availableSeats <= 0) {
+      return alert("Sorry, no more seats available!");
+    }
+  
+    const now = new Date();
+  
+    // Check registration deadline
+    if (eventData.registrationDeadlineDate && eventData.registrationDeadlineTime) {
+      const regDeadline = new Date(`${eventData.registrationDeadlineDate}T${eventData.registrationDeadlineTime}`);
+      if (now >= regDeadline) {
+        return alert("Registration has closed. The deadline has passed.");
+      }
+    }
+  
+    // Check if event has already started
+    if (eventData.startDate && eventData.startTime) {
+      const eventStart = new Date(`${eventData.startDate}T${eventData.startTime}`);
+      if (now >= eventStart) {
+        return alert("Registration has closed. The event has already started.");
+      }
+    }
+  
+    // Check if user profile exists
+    const userProfileSnapshot = await get(ref(realtimeDB, `users/${user.uid}`));
+    if (!userProfileSnapshot.exists()) {
+      return alert("Please complete your profile before registering.");
+    }
+  
+    const profile = userProfileSnapshot.val();
+    const requiredFields = ['name', 'phone'];
+    const isProfileComplete = requiredFields.every(field => profile[field]);
+  
+    if (!isProfileComplete) {
+      return alert("Please complete your profile (name and phone) before registering.");
+    }
+  
+    // Save registration
     const registrationRef = ref(realtimeDB, `eventRegistrations/${eventId}/${user.uid}`);
     await update(registrationRef, {
       uid: user.uid,
       email: user.email,
       registeredAt: new Date().toISOString()
     });
-
+  
     setRegistered(true);
     setUserQRData(JSON.stringify({ eventId, uid: user.uid }));
     alert("Successfully registered!");
     calculateAvailableSeats(eventData.maxSeats);
   };
-
+  
   const handleDownloadQR = () => {
     const canvas = document.getElementById("qrCanvas");
     const pngUrl = canvas
@@ -104,6 +143,62 @@ const EventPreview = () => {
     link.click();
   };
 
+  const handleDownloadPDF = async () => {
+    const snapshot = await get(ref(realtimeDB, `eventRegistrations/${eventId}`));
+    if (!snapshot.exists()) return alert("No registration data found!");
+  
+    const data = snapshot.val();
+  
+    // Fetch additional user profile information
+    const usersSnapshot = await get(ref(realtimeDB, `users`));
+    const users = usersSnapshot.exists() ? usersSnapshot.val() : {};
+  
+    const doc = new jsPDF('landscape');
+    doc.setFontSize(16);
+    doc.text("Registered Members", 20, 20);
+    doc.setFontSize(12);
+    let y = 30;
+  
+    // Add the headers to the PDF
+    doc.text("Name", 20, y);
+    doc.text("Email", 80, y);
+    doc.text("Phone", 140, y);
+    if (eventData.category === "college") {
+      doc.text("USN", 200, y);
+      doc.text("Section", 260, y);
+      doc.text("Semester", 320, y);
+      doc.text("Department", 380, y);
+    }
+    y += 10;
+  
+    // Loop through the registrations and add them to the PDF
+    Object.entries(data).forEach(([uid, info]) => {
+      const profile = users[uid]; // Get the user profile
+  
+      // Check if the user profile exists
+      if (profile) {
+        doc.text(profile.name || 'N/A', 20, y);
+        doc.text(info.email || 'N/A', 80, y);
+        doc.text(profile.phone || 'N/A', 140, y);
+  
+        if (eventData.category === "College Event") {
+          doc.text(profile.usn || 'N/A', 200, y);
+          doc.text(profile.section || 'N/A', 260, y);
+          doc.text(profile.semester || 'N/A', 320, y);
+          doc.text(profile.department || 'N/A', 380, y);
+        }
+  
+        y += 10;
+        if (y > 280) { // Add new page if overflow
+          doc.addPage();
+          y = 20;
+        }
+      }
+    });
+  
+    doc.save(`Registrations_${eventId}.pdf`);
+  };
+  
   if (!eventData)
     return <p style={{ textAlign: 'center', marginTop: '100px', color: '#fff' }}>Loading event details...</p>;
 
@@ -126,6 +221,11 @@ const EventPreview = () => {
                 <p>{eventData.startTime}</p>
                 <strong>End Time</strong>
                 <p> {eventData.endTime}</p>
+
+                <strong>Registration Deadline</strong>
+                <p> {eventData.registrationDeadlineDate}</p>
+                <p> {eventData.registrationDeadlineTime}</p>
+
                 <strong>Available Seats</strong> 
                 <p>{availableSeats !== null ? availableSeats : "Loading..."}</p>
                 <strong>Venue</strong> 
@@ -135,10 +235,10 @@ const EventPreview = () => {
                 <strong>Location</strong> 
                 <p><a href={eventData.address} target="_blank" rel="noreferrer"><CiLocationOn /> View on Google Maps</a></p>
                 <strong>About Event</strong>
-                <p> {eventData.description}</p>
+                <p style={{whiteSpace: 'pre-wrap'}}> {eventData.description}</p>
                 <strong>Category</strong> 
                 <p>{eventData.category}</p>
-                <strong>Office/College Name</strong>
+                <strong>Office/College/Public Event Name</strong>
                 <p> {eventData.additionalInfo}</p>
                 <strong>Visibility</strong>
                 <p> {eventData.visibility}</p>
@@ -148,11 +248,16 @@ const EventPreview = () => {
           <>
             <button onClick={handleScanQR}><RiQrScanLine /> Scan QR</button>
             <button onClick={handleDownloadAttendance}><IoCloudDownloadOutline /> Attendance</button>
+            <button onClick={handleDownloadPDF}><IoCloudDownloadOutline /> Registration PDF</button>
           </>
         ) : (
-          !registered ? (
-            <button onClick={handleRegister}>🎟️ Register to Join</button>
-          ) : (
+            !registered ? (
+                availableSeats > 0 ? (
+                  <button onClick={handleRegister}>🎟️ Register to Join</button>
+                ) : (
+                  <p style={{ color: 'red', fontWeight: 'bold' }}>Registration Closed</p>
+                )
+              ) : (
             <div>
               <p>You are already registered! Here's your ticket:</p>
               <QRCodeCanvas id="qrCanvas" value={userQRData} size={200} />

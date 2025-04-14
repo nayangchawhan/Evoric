@@ -122,6 +122,7 @@ body {
 
   .event-grid{
     display: grid;
+    gap: 20px;
   }
 
   .event-grid .event-preview-left{

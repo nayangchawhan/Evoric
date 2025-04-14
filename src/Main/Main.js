@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ref as dbRef, get, child } from 'firebase/database';
+import { ref as dbRef, get, child,update } from 'firebase/database';
 import { auth, realtimeDB } from '../firebase';
 import Navbar2 from '../Universe/Nav_bar';
 import { CiLocationOn } from "react-icons/ci";
@@ -84,6 +84,54 @@ const Main = () => {
       event.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleDeleteCreatedEvent = async (eventId) => {
+        const user = auth.currentUser;
+        if (!user || !eventId) return;
+      
+        const confirmDelete = window.confirm("Are you sure you want to delete this event?");
+        if (!confirmDelete) return;
+      
+        try {
+          // Delete from /events
+          await update(dbRef(realtimeDB, `events/${eventId}`), null);
+      
+          // Delete from /users/{uid}/createdEvents
+          const userEventsSnap = await get(child(dbRef(realtimeDB), `users/${user.uid}/createdEvents`));
+          if (userEventsSnap.exists()) {
+            const createdEventMap = userEventsSnap.val();
+            const updatedMap = Object.fromEntries(
+              Object.entries(createdEventMap).filter(([_, value]) => value !== eventId)
+            );
+            await update(dbRef(realtimeDB, `users/${user.uid}`), { createdEvents: updatedMap });
+          }
+      
+          // Remove from UI
+          setCreatedEvents(prev => prev.filter(ev => ev.id !== eventId));
+          alert('Event deleted successfully!');
+        } catch (err) {
+          console.error('Error deleting event:', err);
+          alert('Failed to delete event.');
+        }
+      };
+      
+      const handleUnregister = async (eventId) => {
+        const user = auth.currentUser;
+        if (!user || !eventId) return;
+      
+        const confirmUnregister = window.confirm("Are you sure you want to unregister from this event?");
+        if (!confirmUnregister) return;
+      
+        try {
+          await update(dbRef(realtimeDB, `eventRegistrations/${eventId}/${user.uid}`), null);
+          setRegisteredEvents(prev => prev.filter(ev => ev.id !== eventId));
+          alert('Unregistered successfully!');
+        } catch (err) {
+          console.error('Error unregistering:', err);
+          alert('Failed to unregister.');
+        }
+      };
+      
+
   return (
     <div className='Main-div'>
       <Navbar2 />
@@ -94,6 +142,7 @@ const Main = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-bar"
+          style={{color:'black'}}
         />
 
         {loading ? (
@@ -102,7 +151,7 @@ const Main = () => {
           </div>
         ) : (
           <>
-            <h2 className="section-title">Events Created by You</h2>
+            <h2 className="section-title" style={{marginBottom:'10px'}}>Events Created by You</h2>
             <div className="timeline">
               {filterEvents(createdEvents).map((event) => (
                 <div key={event.id} className="event-card">
@@ -113,13 +162,14 @@ const Main = () => {
                       <h6>{event.tagline || 'Untitled'}</h6>
                       <p><a style={{color:'white'}}href={event.address || 'No location'}><CiLocationOn style={{color:'white'}}/>Location</a></p>
                       <span className="event-tag">Created</span>
+                      <button className="delete-btn" onClick={() => handleDeleteCreatedEvent(event.id)} style={{marginLeft:'5px'}}>Delete</button>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            <h2 className="section-title">Events Registered by You</h2>
+            <h2 className="section-title" style={{marginBottom:'10px', marginTop:'10px'}}>Events Registered by You</h2>
             <div className="timeline">
               {filterEvents(registeredEvents).map((event) => (
                 <div key={event.id} className="event-card">
@@ -131,6 +181,7 @@ const Main = () => {
                       <p style={{fontSize:'small'}}>{event.description}</p>
                       <p><a style={{color:'white'}}href={event.address || 'No location'}><CiLocationOn style={{color:'white'}}/>Location</a></p>
                       <span className="event-tag">Registered</span>
+                      <button className="delete-btn" onClick={() => handleUnregister(event.id)} style={{marginLeft:'5px'}}>Unregister</button>
                     </div>
                   </div>
                 </div>

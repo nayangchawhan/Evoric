@@ -89,3 +89,18 @@ body{
   h2{
     color:black;
   }
+
+  .delete-btn {
+    margin-top: 8px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .delete-btn:hover {
+    background: #c0392b;
+  }
+  
