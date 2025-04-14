@@ -8,6 +8,7 @@ import EventPreview from './Main/EventPreview'
 import ScanQRCode from './Main/ScanQRCode'
 import Profile from './Main/Profile'
 import EditProfile from './Main/EditProfile'
+import TeamProfile from './Main/TeamProfile'
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
         <Route path="/event/:id" element={<EventPreview />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/edit-profile" element={<EditProfile />} />
+        <Route path="/team-profile" element={<TeamProfile />} />
       </Routes>
     </Router>
   )

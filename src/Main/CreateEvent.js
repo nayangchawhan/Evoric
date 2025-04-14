@@ -44,9 +44,13 @@ const CreateEvent = () => {
   }, [navigate]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
+  
 
   const handleThemeChange = (e) => {
     setTheme(e.target.value);
@@ -179,22 +183,18 @@ const CreateEvent = () => {
           </div>
 
           {/* Team Event Checkbox */}
-            <div style={{ marginTop: '10px' }}>
+          <div style={{ marginTop: '10px' }}>
             <label>
-                 Is this a Team Event?
+                Is this a Team Event?
             </label>
             <input
                 type="checkbox"
                 name="isTeamEvent"
                 checked={formData.isTeamEvent}
-                onChange={(e) =>
-                    setFormData((prev) => ({
-                    ...prev,
-                    isTeamEvent: e.target.checked,
-                    }))
-                }
-                />
+                onChange={handleChange}
+            />
             </div>
+
 
             {/* Custom Questions Field */}
             <div style={{ marginTop: '15px' }}>

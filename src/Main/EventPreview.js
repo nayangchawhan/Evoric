@@ -61,93 +61,67 @@ const EventPreview = () => {
     const user = auth.currentUser;
     if (!user) return alert("You need to be logged in to register.");
   
-    if (availableSeats <= 0) {
-      return alert("Sorry, no more seats available!");
-    }
+    if (availableSeats <= 0) return alert("Sorry, no more seats available!");
   
     const now = new Date();
   
     if (eventData.registrationDeadlineDate && eventData.registrationDeadlineTime) {
       const regDeadline = new Date(`${eventData.registrationDeadlineDate}T${eventData.registrationDeadlineTime}`);
-      if (now >= regDeadline) {
-        return alert("Registration has closed. The deadline has passed.");
-      }
+      if (now >= regDeadline) return alert("Registration has closed. The deadline has passed.");
     }
   
     if (eventData.startDate && eventData.startTime) {
       const eventStart = new Date(`${eventData.startDate}T${eventData.startTime}`);
-      if (now >= eventStart) {
-        return alert("Registration has closed. The event has already started.");
-      }
+      if (now >= eventStart) return alert("Registration has closed. The event has already started.");
     }
   
     const userProfileSnapshot = await get(ref(realtimeDB, `users/${user.uid}`));
-    if (!userProfileSnapshot.exists()) {
-      return alert("Please complete your profile before registering.");
-    }
+    if (!userProfileSnapshot.exists()) return alert("Please complete your profile before registering.");
   
     const profile = userProfileSnapshot.val();
     const requiredFields = ['name', 'phone'];
     const isProfileComplete = requiredFields.every(field => profile[field]);
+    if (!isProfileComplete) return alert("Please complete your profile (name and phone) before registering.");
   
-    if (!isProfileComplete) {
-      return alert("Please complete your profile (name and phone) before registering.");
-    }
-  
-    // Show form for Team ID and Custom Questions if needed
-    if (
-      eventData.requiresTeamId ||
-      (eventData.additionalQuestions && eventData.additionalQuestions.length > 0)
-    ) {
-      setShowRegistrationForm(true);
-    } else {
-      // Direct registration if no extra fields needed
-      const registrationRef = ref(realtimeDB, `eventRegistrations/${eventId}/${user.uid}`);
-      await update(registrationRef, {
-        uid: user.uid,
-        email: user.email,
-        registeredAt: new Date().toISOString()
-      });
-  
-      setRegistered(true);
-      setUserQRData(JSON.stringify({ eventId, uid: user.uid }));
-      alert("Successfully registered!");
-      calculateAvailableSeats(eventData.maxSeats);
-    }
-  };
-
-  const handleFinalRegistration = async () => {
-    const user = auth.currentUser;
-    if (!user) return alert("User not found.");
-  
-    if (eventData.requiresTeamId && !teamId.trim()) {
-      return alert("Please enter a valid Team ID.");
-    }
-  
-    // Check if team exists
+    // Team check if required
+    let teamMembers = [user.uid];
     if (eventData.requiresTeamId) {
+      if (!teamId.trim()) return alert("Please enter a valid Team ID.");
+      
       const teamSnapshot = await get(ref(realtimeDB, `teams/${teamId}`));
-      if (!teamSnapshot.exists()) {
-        return alert("Team ID does not exist.");
+      if (!teamSnapshot.exists()) return alert("Team ID does not exist.");
+  
+      const teamData = teamSnapshot.val();
+      teamMembers = teamData.members || [];
+  
+      if (!teamMembers.includes(user.uid)) {
+        return alert("You must be a member of this team to register.");
       }
     }
   
-    const registrationRef = ref(realtimeDB, `eventRegistrations/${eventId}/${user.uid}`);
-    await update(registrationRef, {
-      uid: user.uid,
-      email: user.email,
-      registeredAt: new Date().toISOString(),
-      teamId: eventData.requiresTeamId ? teamId.trim() : null,
-      customAnswers: customAnswers || {}
-    });
+    // Register all team members
+    for (const memberUid of teamMembers) {
+      const memberProfileSnap = await get(ref(realtimeDB, `users/${memberUid}`));
+      const memberProfile = memberProfileSnap.exists() ? memberProfileSnap.val() : {};
   
-    setRegistered(true);
-    setUserQRData(JSON.stringify({ eventId, uid: user.uid }));
-    alert("Successfully registered!");
+      await update(ref(realtimeDB, `eventRegistrations/${eventId}/${memberUid}`), {
+        uid: memberUid,
+        email: memberProfile.email || '',
+        registeredAt: new Date().toISOString(),
+        teamId: eventData.requiresTeamId ? teamId.trim() : null,
+        customAnswers: {} // You can enhance this if you want per-user answers
+      });
+  
+      // Special case: if current user, set local QR and flag
+      if (memberUid === user.uid) {
+        setRegistered(true);
+        setUserQRData(JSON.stringify({ eventId, uid: user.uid }));
+      }
+    }
+  
+    alert("Successfully registered all team members!");
     calculateAvailableSeats(eventData.maxSeats);
-    setShowRegistrationForm(false);
   };
-  
   
   const handleDownloadQR = () => {
     const canvas = document.getElementById("qrCanvas");
@@ -169,10 +143,10 @@ const EventPreview = () => {
     if (!snapshot.exists()) return alert("No attendance data yet!");
 
     const data = snapshot.val();
-    const rows = [['UID', 'Email', 'Scan Time']];
+    const rows = [['Name', 'Email', 'Scan Time']];
 
     for (const [uid, entry] of Object.entries(data)) {
-      rows.push([uid, entry.email, entry.time]);
+      rows.push([entry.name, entry.email, entry.time]);
     }
 
     const csvContent = rows.map(e => e.join(",")).join("\n");
@@ -323,19 +297,33 @@ const EventPreview = () => {
         ) : (
             !registered ? (
                 availableSeats > 0 ? (
-                  <button onClick={handleFinalRegistration}>🎟️ Register to Join</button>
+                  <div>
+                    {eventData.requiresTeamId && (
+                      <div className="team-id-input">
+                        <label>Enter Team ID:</label>
+                        <input
+                          type="text"
+                          value={teamId}
+                          onChange={(e) => setTeamId(e.target.value)}
+                          placeholder="Team ID"
+                        />
+                      </div>
+                    )}
+                    <button onClick={handleRegister}>🎟️ Register to Join</button>
+                  </div>
                 ) : (
                   <p style={{ color: 'red', fontWeight: 'bold' }}>Registration Closed</p>
                 )
               ) : (
-            <div>
-              <p>You are already registered! Here's your ticket:</p>
-              <QRCodeCanvas id="qrCanvas" value={userQRData} size={200} />
-              <br />
-              <button onClick={handleDownloadQR}><IoCloudDownloadOutline /> QR Ticket</button>
-            </div>
-          )
-        )}
+                <div>
+                  <p>You are already registered! Here's your ticket:</p>
+                  <QRCodeCanvas id="qrCanvas" value={userQRData} size={200} />
+                  <br />
+                  <button onClick={handleDownloadQR}><IoCloudDownloadOutline /> QR Ticket</button>
+                </div>
+              
+              
+        ))}
 
         {eventData.visibility === 'private' && isOwner && (
           <div className="share-link">
