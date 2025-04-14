@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ref, get, set } from 'firebase/database';
 import { realtimeDB } from '../firebase';
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import './ScanQRCode.css';
 
 const ScanQRCode = () => {
   const { eventId } = useParams();
