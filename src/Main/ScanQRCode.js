@@ -88,7 +88,7 @@ const ScanQRCode = () => {
   return (
     <div className="scanner-wrapper">
       <div className="scanner-card">
-        <h2>📷 Scan QR Ticket</h2>
+        <h2>Scan QR Ticket</h2>
         <div id={qrCodeRegionId} style={{ width: '100%' }} />
         <p className="note">Please scan one ticket at a time.</p>
       </div>

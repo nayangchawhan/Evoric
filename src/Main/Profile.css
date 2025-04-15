@@ -12,7 +12,11 @@
     font-size: 1rem;
     margin: 10px 0;
   }
-  
+
+  .submit,
+  .join-team-button,
+  .view-team-button,
+  .create-team-button,
   .edit-button {
     margin-top: 20px;
     padding: 10px 20px;
@@ -21,8 +25,13 @@
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    margin: 10px;
   }
   
+  .submit,
+  .join-team-button,
+  .view-team-button,
+  .create-team-button,
   .edit-button:hover {
     background-color: #004ecc;
   }
