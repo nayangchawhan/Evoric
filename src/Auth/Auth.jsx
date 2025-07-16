@@ -25,7 +25,7 @@ const Auth = () => {
         await createUserWithEmailAndPassword(auth, email, password);
         alert("Account created!");
       }
-      navigate('/main'); // 🔁 Redirect after success
+      navigate('/main'); // Redirect after success
     } catch (error) {
       alert(error.message);
     }
