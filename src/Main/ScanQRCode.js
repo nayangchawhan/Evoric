@@ -4,6 +4,7 @@ import { ref, get, set } from 'firebase/database';
 import { realtimeDB } from '../firebase';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import './ScanQRCode.css'; // Add styles here
+import NavBar2 from '../Universe/Nav_bar';
 
 const ScanQRCode = () => {
   const { eventId } = useParams();
@@ -86,12 +87,15 @@ const ScanQRCode = () => {
   }, [attendees, eventId]);
 
   return (
+    <div>
+      <NavBar2 />
     <div className="scanner-wrapper">
       <div className="scanner-card">
         <h2>Scan QR Ticket</h2>
         <div id={qrCodeRegionId} style={{ width: '100%' }} />
         <p className="note">Please scan one ticket at a time.</p>
       </div>
+    </div>
     </div>
   );
 };

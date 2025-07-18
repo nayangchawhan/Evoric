@@ -24,6 +24,7 @@ const CreateEvent = () => {
         category: '',
         theme:'',
         additionalInfo: '',
+        additionalLinks: '',
         visibility: 'public',
         isTeamEvent: false, 
         customQuestions: [], 
@@ -93,6 +94,7 @@ const CreateEvent = () => {
         category: '',
         theme:'',
         additionalInfo: '',
+        additionalLinks: '',
         visibility: 'public',
         isTeamEvent: false, // ✅ New Field
         customQuestions: [], // ✅ New Field
@@ -173,7 +175,9 @@ const CreateEvent = () => {
           {formData.category === 'community' && (
             <input name="additionalInfo" placeholder="Community Name" value={formData.additionalInfo} onChange={handleChange} required />
           )}
+          <input name="additionalLinks" placeholder="Additional Links (e.g. Registration Form, Social Media)" value={formData.additionalLinks} onChange={handleChange} />
 
+          {/* Visibility Selector */}
           <div className="visibility-selector">
             <label htmlFor="visibility">Event Visibility</label>
             <select name="visibility" value={formData.visibility} onChange={handleChange} required>

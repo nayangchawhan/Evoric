@@ -19,9 +19,9 @@ const EventPreview = () => {
   const [userQRData, setUserQRData] = useState('');
   const [availableSeats, setAvailableSeats] = useState(null);
   const [teamId, setTeamId] = useState('');
-    const [customAnswers, setCustomAnswers] = useState({});
-    const [showRegistrationForm, setShowRegistrationForm] = useState(false);
-
+  // const [customAnswers, setCustomAnswers] = useState({});
+  // const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  
   useEffect(() => {
     const fetchEvent = async () => {
       const snapshot = await get(ref(realtimeDB, `events/${eventId}`));
@@ -85,7 +85,7 @@ const EventPreview = () => {
   
     // Team check if required
     let teamMembers = [user.uid];
-    if (eventData.requiresTeamId) {
+    if (eventData.isTeamEvent) {
       if (!teamId.trim()) return alert("Please enter a valid Team ID.");
       
       const teamSnapshot = await get(ref(realtimeDB, `teams/${teamId}`));
@@ -108,7 +108,7 @@ const EventPreview = () => {
         uid: memberUid,
         email: memberProfile.email || '',
         registeredAt: new Date().toISOString(),
-        teamId: eventData.requiresTeamId ? teamId.trim() : null,
+        teamId: eventData.isTeamEvent ? teamId.trim() : null,
         customAnswers: {} // You can enhance this if you want per-user answers
       });
   
@@ -230,6 +230,7 @@ const EventPreview = () => {
     return <p style={{ textAlign: 'center', marginTop: '100px', color: '#fff' }}>Loading event details...</p>;
 
   const isOwner = currentUser && eventData.createdBy === currentUser.uid;
+  console.log(eventData);
 
   return (
     <div className={`event-preview-container ${eventData.theme}`}>
@@ -257,36 +258,8 @@ const EventPreview = () => {
                 <p>{availableSeats !== null ? availableSeats : "Loading..."}</p>
                 <strong>Venue</strong> 
                 <p>{eventData.venue}</p>
-
-                {showRegistrationForm && (
-                    <div className="custom-registration-form">
-                        {eventData.requiresTeamId && (
-                        <>
-                            <label>Enter Team ID:</label>
-                            <input
-                            type="text"
-                            value={teamId}
-                            onChange={(e) => setTeamId(e.target.value)}
-                            />
-                        </>
-                        )}
-
-                        {eventData.additionalQuestions && eventData.additionalQuestions.length > 0 &&
-                        eventData.additionalQuestions.map((q, idx) => (
-                            <div key={idx}>
-                            <label>{q}</label>
-                            <input
-                                type="text"
-                                value={customAnswers[q] || ''}
-                                onChange={(e) =>
-                                setCustomAnswers((prev) => ({ ...prev, [q]: e.target.value }))
-                                }
-                            />
-                            </div>
-                        ))
-                        }
-                        </div>
-                    )}
+                <strong>Max Seats</strong>
+                <p>{eventData.maxSeats}</p>
             </div>
             <div className='event-preview-right'>
                 <strong>Location</strong> 
@@ -295,10 +268,15 @@ const EventPreview = () => {
                 <p style={{whiteSpace: 'pre-wrap'}}> {eventData.description}</p>
                 <strong>Category</strong> 
                 <p>{eventData.category}</p>
-                <strong>Office/College/Public Event Name</strong>
+                <strong>Office/College/Public Name</strong>
                 <p> {eventData.additionalInfo}</p>
                 <strong>Visibility</strong>
                 <p> {eventData.visibility}</p>
+                {(eventData.additionalLinks && eventData.additionalLinks.trim() !== '') && (<div>
+                <strong>additional Links</strong>
+                <link>{eventData.additionalLinks}</link>
+                </div>
+                )}
             </div>
         </div>
         {isOwner ? (
@@ -311,14 +289,16 @@ const EventPreview = () => {
             !registered ? (
                 availableSeats > 0 ? (
                   <div>
-                    {eventData.requiresTeamId && (
+                    {String(eventData?.isTeamEvent) == 'true' && (
                       <div className="team-id-input">
-                        <label>Enter Team ID:</label>
+                        <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>Enter Team ID:</label>
                         <input
                           type="text"
                           value={teamId}
+                          style={{ width: '70%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' , backgroundColor: 'transparent' }}
                           onChange={(e) => setTeamId(e.target.value)}
                           placeholder="Team ID"
+                          className="styled-input"
                         />
                       </div>
                     )}
