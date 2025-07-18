@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ref as dbRef, get, child,update } from 'firebase/database';
+import { ref as dbRef, get, child,update,remove } from 'firebase/database';
 import { auth, realtimeDB } from '../firebase';
 import Navbar2 from '../Universe/Nav_bar';
 import { CiLocationOn } from "react-icons/ci";
@@ -93,7 +93,7 @@ const Main = () => {
       
         try {
           // Delete from /events
-          await update(dbRef(realtimeDB, `events/${eventId}`), null);
+          await remove(dbRef(realtimeDB, `events/${eventId}`));
       
           // Delete from /users/{uid}/createdEvents
           const userEventsSnap = await get(child(dbRef(realtimeDB), `users/${user.uid}/createdEvents`));
@@ -122,7 +122,7 @@ const Main = () => {
         if (!confirmUnregister) return;
       
         try {
-          await update(dbRef(realtimeDB, `eventRegistrations/${eventId}/${user.uid}`), null);
+          await remove(dbRef(realtimeDB, `eventRegistrations/${eventId}/${user.uid}`));
           setRegisteredEvents(prev => prev.filter(ev => ev.id !== eventId));
           alert('Unregistered successfully!');
         } catch (err) {
