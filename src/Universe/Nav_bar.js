@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LuTickets } from "react-icons/lu";
-import { SlCalender } from "react-icons/sl";
-import { IoIosLogIn,IoIosMenu  } from "react-icons/io";
-import { IoCreateOutline } from "react-icons/io5";
+//import { SlCalender } from "react-icons/sl";
+import { IoIosLogIn,IoIosMenu} from "react-icons/io";
+import { IoCreateOutline,IoLayersOutline } from "react-icons/io5";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // adjust path as needed
 import './Navbar2.css';
@@ -31,7 +31,7 @@ function NavBar2() {
         <ul className='nav-list-left'>
           <li onClick={() => navigate('/main')}><LuTickets /> Events</li>
           <li onClick={() => navigate('/create-event')}><IoCreateOutline /> Create Event</li>
-          <li><SlCalender /> Calender</li>
+          <li onClick={()=> navigate('/discover')}><IoLayersOutline /> Discover</li>
         </ul>
         <ul className='nav-list-right'>
           <li onClick={handleLogout}><IoIosLogIn /> Log out</li>
