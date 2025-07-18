@@ -139,36 +139,63 @@ const EventPreview = () => {
   };
 
   const handleDownloadAttendancePDF = async () => {
-    const snapshot = await get(ref(realtimeDB, `eventAttendance/${eventId}`));
-    if (!snapshot.exists()) return alert("No attendance data found!");
-  
-    const data = snapshot.val();
-    const doc = new jsPDF('landscape');
-    doc.setFontSize(16);
-    doc.text("Event Attendance List", 20, 20);
-    doc.setFontSize(12);
-  
-    let y = 30;
-    doc.text("Name", 20, y);
-    doc.text("Email", 100, y);
-    doc.text("Scan Time", 240, y);
-    y += 10;
-  
-    Object.values(data).forEach((entry) => {
-      doc.text(entry.name || 'N/A', 20, y);
-      doc.text(entry.email || 'N/A', 100, y);
-      doc.text(entry.time || 'N/A', 240, y);
-      y += 10;
-  
-      if (y > 190) {
-        doc.addPage();
-        y = 20;
+      const snapshot = await get(ref(realtimeDB, `eventAttendance/${eventId}`));
+      if (!snapshot.exists()) return alert("No attendance data found!");
+
+      const attendanceData = snapshot.val();
+
+      // Fetch user profiles for detailed data
+      const usersSnapshot = await get(ref(realtimeDB, `users`));
+      const users = usersSnapshot.exists() ? usersSnapshot.val() : {};
+
+      const doc = new jsPDF('landscape');
+      doc.setFontSize(16);
+      doc.text("Event Attendance List", 20, 20);
+      doc.setFontSize(12);
+
+      let y = 30;
+
+      // Headers
+      doc.text("Name", 20, y);
+      doc.text("Email", 80, y);
+      doc.text("Phone", 140, y);
+      if (eventData.category === "college") {
+        doc.text("USN", 170, y);
+        doc.text("Section", 195, y);
+        doc.text("Semester", 220, y);
+        doc.text("Department", 240, y);
       }
-    });
-  
-    doc.save(`Attendance_${eventId}.pdf`);
-  };
-  
+      doc.text("Time", 280, y);
+      y += 10;
+
+      // Data rows
+      Object.entries(attendanceData).forEach(([uid, entry]) => {
+        const profile = users[uid]; // Match UID to user profile
+
+        if (profile) {
+          doc.text(profile.name || 'N/A', 20, y);
+          doc.text(profile.email || 'N/A', 80, y);
+          doc.text(profile.phone || 'N/A', 140, y);
+
+          if (eventData.category === "college") {
+            doc.text(profile.usn || 'N/A', 170, y);
+            doc.text(profile.section || 'N/A', 195, y);
+            doc.text(profile.semester || 'N/A', 220, y);
+            doc.text(profile.department || 'N/A', 240, y);
+          }
+
+          doc.text(entry.time || 'N/A', 280, y);
+
+          y += 10;
+          if (y > 280) {
+            doc.addPage();
+            y = 20;
+          }
+        }
+      });
+
+      doc.save(`Attendance_${eventId}.pdf`);
+    };
 
   const handleDownloadPDF = async () => {
     const snapshot = await get(ref(realtimeDB, `eventRegistrations/${eventId}`));
@@ -191,28 +218,27 @@ const EventPreview = () => {
     doc.text("Email", 80, y);
     doc.text("Phone", 140, y);
     if (eventData.category === "college") {
-      doc.text("USN", 200, y);
-      doc.text("Section", 260, y);
-      doc.text("Semester", 320, y);
-      doc.text("Department", 380, y);
+      doc.text("USN", 170, y);
+      doc.text("Section", 195, y);
+      doc.text("Semester", 220, y);
+      doc.text("Department", 240, y);
     }
     y += 10;
   
     // Loop through the registrations and add them to the PDF
     Object.entries(data).forEach(([uid, info]) => {
       const profile = users[uid]; // Get the user profile
-  
       // Check if the user profile exists
       if (profile) {
         doc.text(profile.name || 'N/A', 20, y);
         doc.text(info.email || 'N/A', 80, y);
         doc.text(profile.phone || 'N/A', 140, y);
   
-        if (eventData.category === "College Event") {
-          doc.text(profile.usn || 'N/A', 200, y);
-          doc.text(profile.section || 'N/A', 260, y);
-          doc.text(profile.semester || 'N/A', 320, y);
-          doc.text(profile.department || 'N/A', 380, y);
+        if (eventData.category === "college") {
+          doc.text(profile.usn || 'N/A', 170, y);
+          doc.text(profile.section || 'N/A', 195, y);
+          doc.text(profile.semester || 'N/A', 220, y);
+          doc.text(profile.department || 'N/A', 240, y);
         }
   
         y += 10;
@@ -274,7 +300,7 @@ const EventPreview = () => {
                 <p> {eventData.visibility}</p>
                 {(eventData.additionalLinks && eventData.additionalLinks.trim() !== '') && (<div>
                 <strong>additional Links</strong>
-                <link>{eventData.additionalLinks}</link>
+                <p><a href={eventData.additionalLinks}>{eventData.additionalLinks}</a></p>
                 </div>
                 )}
             </div>
